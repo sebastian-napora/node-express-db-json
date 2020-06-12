@@ -26,34 +26,63 @@ module.exports = function(router) {
         })
     })
 
-    router.get('/filter-movies?:genres', (req, res, next) => {
+    router.get('/filter-movies/:duration?/:genres?', (req, res, next) => {
         const genresByQuery = req.query.genres;
-        const selectedGenres = genresByQuery.split(',');
+        const duration = req.query.duration;
 
-        const filteredMovies = db.movies.filter(movie => {
-            return movie.genres.some(genre => selectedGenres.includes(genre))
-        })
+        const database = db.movies;
+        const durationBeetween = [+duration - 10, +duration, +duration + 10]
 
-        const convertedArray = array => sortedArrayByMatchesGenres(array.map(movie => ({
-                ...movie,
-                genres: movie.genres,
-                matchedGenres: countedMatchingGenres(movie)
-            })
-        ))
-
-        const countedMatchingGenres = movie => {
-            return movie.genres
-                .map(genre => selectedGenres.includes(genre))
-                .filter(b => b === true).length
+        const filteredMoviesByDuration = database.filter(({ runtime }) => durationBeetween.includes(+runtime));
+        const randoMovies = database => database[Math.floor(Math.random() * database.length)]
+        const filtredMoviesDependOnData = (data, selectedGenres) => {
+            return data.filter(({ genres }) => genres.some(genre => selectedGenres.includes(genre)))
         }
 
-        const sortedArrayByMatchesGenres = array => array.sort((a, b) => b.matchedGenres - a.matchedGenres);
 
-        res.status(200).json({ 
-            message: 'FILTRED MOVIES BY CATEGORIES',
-            count: convertedArray(filteredMovies).length,
-            data: convertedArray(filteredMovies)
-        })
+        if(genresByQuery) {
+            const selectedGenres = genresByQuery.split(',');
+            let filteredMovies;
+
+            if(duration) {
+                filteredMovies = filtredMoviesDependOnData(filteredMoviesByDuration, selectedGenres);
+            } else {
+                filteredMovies = filtredMoviesDependOnData(database, selectedGenres);
+            }
+    
+            const convertedArray = array => sortedArrayByMatchesGenres(array.map(movie => ({
+                    ...movie,
+                    genres: movie.genres,
+                    matchedGenres: countedMatchingGenres(movie)
+                })
+            ))
+    
+            const countedMatchingGenres = ({ genres }) => {
+                return genres
+                    .map(genre => selectedGenres.includes(genre))
+                    .filter(b => b === true).length
+            }
+    
+            const sortedArrayByMatchesGenres = array => array.sort((a, b) => b.matchedGenres - a.matchedGenres);
+    
+            res.status(200).json({ 
+                message: 'FILTRED MOVIES BY DURATION AND CATEGORIES',
+                count: convertedArray(filteredMovies).length,
+                data: convertedArray(filteredMovies)
+            })
+        } else if (duration) {
+            res.status(200).json({ 
+                message: 'GET RANDOM MOVIES BY DURATION',
+                count: 1,
+                data: randoMovies(filteredMoviesByDuration)
+            })
+        } else {
+            res.status(200).json({ 
+                message: 'GET RANDOM MOVIES',
+                count: 1,
+                data: randoMovies(database)
+            })
+        }
     })
 
     router.post('/', (req, res, next) => {
