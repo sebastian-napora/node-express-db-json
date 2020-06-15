@@ -1,58 +1,65 @@
 const Movie = require('../models/movie');
 const db = require('../../data/db.json');
-const helper = require('../helpers/helper');
+const {
+    convertedArray,
+    randomMovies,
+    responseObject,
+    modifiedJsonData,
+    filtredMoviesDependOnData
+} = require('../helpers/helper');
+const { jsonWriter, jsonReader} = require('../helpers/json');
+const { ErrorHandler } = require('../helpers/error');
 
 module.exports = function(router) {
-    const {
-        convertedArray,
-        jsonWriter,
-        jsonReader,
-        randomMovies,
-        responseObject,
-        modifiedJsonData,
-        filtredMoviesDependOnData
-    } = helper;
     const database = db.movies;
 
     router.get('/all-movies', (req, res, next) => {
-        res.status(200).json(responseObject('GET ALL MOVIES', database.length, database));
+        // try {
+            res.status(200).json(responseObject('GET ALL MOVIES', database.length, database));
+        // } catch (error) {
+        //     next(new ErrorHandler(400, error));
+        // }
     });
 
     router.get('/filter-movies/:duration?/:genres?', async (req, res, next) => {
-        const genresByQuery = req.query.genres;
-        const duration = req.query.duration;
+        try {
+            const genresByQuery = req.query.genres;
+            const duration = req.query.duration;
 
-        const durationBetween = [+duration - 10, +duration, +duration + 10];
-        const filteredMoviesByDuration = database.filter(({ runtime }) => durationBetween.includes(+runtime));
+            const durationBetween = [+duration - 10, +duration, +duration + 10];
+            const filteredMoviesByDuration = database.filter(({ runtime }) => durationBetween.includes(+runtime));
 
-        if (genresByQuery || duration) {
-            let successResponse;
-            if(genresByQuery) {
-                const selectedGenres = genresByQuery.split(',');
-                let filteredMovies;
-    
-                duration
+            if (genresByQuery || duration) {
+                let successResponse;
+                if(genresByQuery) {
+                    const selectedGenres = genresByQuery.split(',');
+                    let filteredMovies;
+
+                    duration
                     ? filteredMovies = filtredMoviesDependOnData(filteredMoviesByDuration, selectedGenres)
-                    : filteredMovies = filtredMoviesDependOnData(database, selectedGenres);
+                        : filteredMovies = filtredMoviesDependOnData(database, selectedGenres);
 
-                successResponse = responseObject(
-                    'MOVIES BY DURATION AND CATEGORIES',
-                    convertedArray(filteredMovies, selectedGenres).length,
-                    convertedArray(filteredMovies, selectedGenres)
-                );
+                    successResponse = responseObject(
+                        'MOVIES BY DURATION AND CATEGORIES',
+                        convertedArray(filteredMovies, selectedGenres).length,
+                        convertedArray(filteredMovies, selectedGenres)
+                    );
+                } else {
+                    successResponse = responseObject('GET RANDOM MOVIES BY DURATION',  1, randomMovies(filteredMoviesByDuration));
+                }
+
+                return await res.status(200).json(successResponse);
             } else {
-                successResponse = responseObject('GET RANDOM MOVIES BY DURATION',  1, randomMovies(filteredMoviesByDuration));
-            }        
-            
-            return await res.status(200).json(successResponse);
-        } else {
-            await res.status(200).json(responseObject('GET RANDOM MOVIES', 1, randomMovies(database)));
+                await res.status(200).json(responseObject('GET RANDOM MOVIES', 1, randomMovies(database)));
+            }
+        } catch (err) {
+            next(new ErrorHandler(404, err));
         }
     })
 
     router.post('/', (req, res, next) => {
         const id = database.length + 1;
-        const { 
+        const {
             genres,
             title,
             year,
@@ -75,12 +82,12 @@ module.exports = function(router) {
         });
 
         if(error) {
-            res.status(500).json({ error: error.message });
+            next(new ErrorHandler(404, error.message))
         } else {
             const jsonString = modifiedJsonData(data, "Stringify");
             jsonReader('./data/db.json', (err, data) => {
-                if(err) return res.status(500).json(responseObject('Error reading file', 0, err));
-                
+                if(err) return next(new ErrorHandler(500, '' + err.message))
+
                 const arrayOfObjects = data;
                     arrayOfObjects.movies.push(modifiedJsonData(jsonString, "Parse"));
 
