@@ -1,15 +1,16 @@
 const Joi = require('@hapi/joi');
+const { array, string, number } = Joi.types();
 
 const Movie = Joi.object().keys({
-    id: Joi.number().required(),
-    genres: Joi.array().required(),
-    title: Joi.string().required(),
-    year: Joi.number().required(),
-    runtime: Joi.number().required(),
-    director: Joi.string().required(),
-    actors: Joi.string(),
-    plot: Joi.string(),
-    posterUrl: Joi.string(),
+    id: number.required(),
+    genres: array.required(),
+    title: string.required().min(1).max(255),
+    year: number.required(),
+    runtime: number.required(),
+    director: string.required().min(1).max(255),
+    actors: string,
+    plot: string,
+    posterUrl: string,
 });
 
 module.exports = Movie;

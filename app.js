@@ -1,10 +1,12 @@
 const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const config = require('./config');
+const createError = require('http-errors');
 
+
+const config = require('./config');
+const { logErrors } = require('./api/helpers/error');
 const movies = require('./api/routes/movies');
-const { handlerError, ErrorHandler } = require('./api/helpers/error');
 
 async function startServer() {
     const app = express();
@@ -24,27 +26,23 @@ async function startServer() {
         };
         next();
     });
-
+    
     app.use('/movies', movies(express.Router()));
     
     app.use((req, res, next) => {
-        const error = new Error('Not found');
-        error.status = 404;
-        next(error);
+        next(new createError(404, 'Not found'));
     })
-
+    
     app.use((error, req, res, next) => {
-        res.status(error.status || 500);
+        res.status(error.status || 400);
         res.json({
             error: {
-                status: error.status || 500,
+                status: error.status || 400,
                 message: error.message
             }
         });
     });
-    app.use((err, req, res, next) => {
-        handlerError(err, res);
-    });
+    app.use(logErrors);
 
     app.listen(config.port, err => {
         if (err) {

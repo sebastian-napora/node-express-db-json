@@ -1,4 +1,8 @@
+const createError = require('http-errors');
+const validator = require('express-joi-validation').createValidator({});
+
 const Movie = require('../models/movie');
+const Query = require('../models/query');
 const db = require('../../data/db.json');
 const {
     convertedArray,
@@ -8,20 +12,16 @@ const {
     filtredMoviesDependOnData
 } = require('../helpers/helper');
 const { jsonWriter, jsonReader} = require('../helpers/json');
-const { ErrorHandler } = require('../helpers/error');
 
 module.exports = function(router) {
     const database = db.movies;
 
     router.get('/all-movies', (req, res, next) => {
-        // try {
+        if(!database) return next(new createError(404, 'Not founds'));
             res.status(200).json(responseObject('GET ALL MOVIES', database.length, database));
-        // } catch (error) {
-        //     next(new ErrorHandler(400, error));
-        // }
     });
 
-    router.get('/filter-movies/:duration?/:genres?', async (req, res, next) => {
+    router.get('/filter-movies/:duration?/:genres?', validator.query(Query), async (req, res, next) => {
         try {
             const genresByQuery = req.query.genres;
             const duration = req.query.duration;
@@ -53,7 +53,7 @@ module.exports = function(router) {
                 await res.status(200).json(responseObject('GET RANDOM MOVIES', 1, randomMovies(database)));
             }
         } catch (err) {
-            next(new ErrorHandler(404, err));
+            next(new createError(500, err));
         }
     })
 
@@ -82,11 +82,11 @@ module.exports = function(router) {
         });
 
         if(error) {
-            next(new ErrorHandler(404, error.message))
+            next(error)
         } else {
             const jsonString = modifiedJsonData(data, "Stringify");
             jsonReader('./data/db.json', (err, data) => {
-                if(err) return next(new ErrorHandler(500, '' + err.message))
+                if(err) return next(createError(404, err))
 
                 const arrayOfObjects = data;
                     arrayOfObjects.movies.push(modifiedJsonData(jsonString, "Parse"));
