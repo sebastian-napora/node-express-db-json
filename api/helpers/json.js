@@ -1,15 +1,18 @@
 const fs = require('fs');
-const { modifiedJsonData } = require('./helper');
 
-const jsonReader = (filePath, cb) => {
+const modifiedJsonData = (value, jsonName) => {
+    return jsonName === "Parse" ? JSON.parse(value) : JSON.stringify(value, null, 2)
+};
+
+const jsonReader = (filePath, callback) => {
     return fs.readFile(filePath, (err, fileData) => {
-        if (err) return cb && cb(err)
+        if (err) return callback && callback(err)
 
         try {
             const object = modifiedJsonData(fileData, "Parse")
-            return cb && cb(null, object)
+            return callback && callback(null, object)
         } catch(err) {
-            return cb && cb(err)
+            return callback && callback(err)
         }
     })
 };
@@ -22,5 +25,6 @@ const jsonWriter = (filePath, updateDb) => {
 
 module.exports = {
     jsonWriter,
-    jsonReader
+    jsonReader,
+    modifiedJsonData
 }

@@ -1,7 +1,7 @@
 const Joi = require('@hapi/joi');
 const { array, string, number } = Joi.types();
 
-const Movie = Joi.object().keys({
+const movieSchema = Joi.object().keys({
     id: number.required(),
     genres: array.required(),
     title: string.required().min(1).max(255),
@@ -13,4 +13,6 @@ const Movie = Joi.object().keys({
     posterUrl: string,
 });
 
-module.exports = Movie;
+module.exports = {
+    movieSchema
+};

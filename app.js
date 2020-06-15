@@ -42,6 +42,7 @@ async function startServer() {
             }
         });
     });
+    
     app.use(logErrors);
 
     app.listen(config.port, err => {

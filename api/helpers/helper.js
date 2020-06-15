@@ -1,7 +1,3 @@
-const modifiedJsonData = (value, jsonName) => {
-    return jsonName === "Parse" ? JSON.parse(value) : JSON.stringify(value, null, 2)
-};
-
 const randomMovies = database => database[Math.floor(Math.random() * database.length)];
 
 const responseObject = (message, count, data) => ({ message, count, data });
@@ -29,7 +25,6 @@ module.exports = {
     convertedArray,
     randomMovies,
     responseObject,
-    modifiedJsonData,
     filtredMoviesDependOnData,
     sortedArrayByMatchesGenres
 }
