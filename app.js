@@ -3,8 +3,8 @@ const morgan = require('morgan');
 const { urlencoded, json } = require('body-parser');
 const createError = require('http-errors');
 
-const { logErrors } = require('./api/helpers/error');
-const movies = require('./api/routes/movies');
+const { logErrors } = require('./src/helpers/error');
+const movies = require('./src/routes/movies');
 
 function startServer() {
     const app = express();

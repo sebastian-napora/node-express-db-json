@@ -1,4 +1,4 @@
-const filterMovie = require('../api/controllers/utils');
+const filterMovie = require('../src/controllers/utils');
 const db = require('./__mocks__/mockData.json');
 
 describe('Filter movies', () => {   
