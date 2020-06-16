@@ -8,9 +8,9 @@ const movieSchema = Joi.object().keys({
     year: number.required(),
     runtime: number.required(),
     director: string.required().min(1).max(255),
-    actors: string,
-    plot: string,
-    posterUrl: string,
+    actors: string.allow(""),
+    plot: string.allow(""),
+    posterUrl: string.allow(""),
 });
 
 module.exports = {

@@ -20,7 +20,7 @@ module.exports = {
             next(new createError(500, err));
         }
     },
-    filterMovies: async function(req, res, next) {
+    filtered: async function(req, res, next) {
             try {
                 const genresByQuery = req.query.genres;
                 const duration = req.query.duration;
@@ -55,7 +55,7 @@ module.exports = {
                 next(new createError(500, err));
             }
     },
-    createMovie: function(req, res, next) {
+    create: function(req, res, next) {
         try {
             const {
                 id,
