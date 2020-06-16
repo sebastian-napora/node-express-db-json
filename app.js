@@ -3,7 +3,6 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const createError = require('http-errors');
 
-
 const config = require('./config');
 const { logErrors } = require('./api/helpers/error');
 const movies = require('./api/routes/movies');
@@ -42,17 +41,17 @@ async function startServer() {
             }
         });
     });
-    
+
     app.use(logErrors);
 
     app.listen(config.port, err => {
         if (err) {
             console.error(err);
             process.exit(1);
-        return;
+            return;
         };
-        console.log('start server on port 3003');
+        console.log(`start server on port ${config.port}`);
     });
-}
+};
 
 startServer();
