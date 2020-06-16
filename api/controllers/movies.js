@@ -13,14 +13,14 @@ const {
 const database = db.movies;
 
 module.exports = {
-    getAll: function(req, res, next){
+    getAll: async (req, res, next) =>{
         try {
-            res.status(200).json(responseObject('GET ALL MOVIES', database.length, database));
+            await res.status(200).json(responseObject('GET ALL MOVIES', database.length, database));
         } catch (err) {
             next(new createError(500, err));
         }
     },
-    filtered: async function(req, res, next) {
+    filtered: async (req, res, next) => {
             try {
                 const genresByQuery = req.query.genres;
                 const duration = req.query.duration;
@@ -55,7 +55,7 @@ module.exports = {
                 next(new createError(500, err));
             }
     },
-    create: function(req, res, next) {
+    create: async (req, res, next) => {
         try {
             const {
                 id,
@@ -83,7 +83,7 @@ module.exports = {
             if(error) {
                 next(error)
             } else {
-                const jsonString = modifiedJsonData(data, "Stringify");
+                const jsonString = await modifiedJsonData(data, "Stringify");
                 jsonReader('./data/db.json', (err, data) => {
                     if(err) return next(createError(404, err))
     
