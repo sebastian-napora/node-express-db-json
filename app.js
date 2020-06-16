@@ -1,7 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
 const { urlencoded, json } = require('body-parser');
-const createError = require('http-errors');
 
 const { logErrors } = require('./src/helpers/error');
 const movies = require('./src/routes/movies');
@@ -30,14 +29,17 @@ function startServer() {
     app.use(logErrors);
 
     app.use((req, res, next) => {
-        next(new createError(404, 'Not found'));
+        const error = new Error()
+        error.status = 404
+        error.message = 'Not found'
+        next(error)
     })
     
     app.use((error, req, res, next) => {
-        res.status(error.status || 400);
+        res.status(400 || error.status);
         res.json({
             error: {
-                status: error.status || 400,
+                status: 400 || error.status,
                 message: "Something went wrong!" || error.message
             }
         });
