@@ -11,7 +11,7 @@ module.exports = {
     }),
     bodySchema: Joi.object().keys({
         id: number.required(),
-        genres: array.required(),
+        genres: array.required().items(...db.genres).min(1).unique(),
         title: string.required().min(1).max(255),
         year: number.required(),
         runtime: number.required(),

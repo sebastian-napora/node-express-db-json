@@ -3,11 +3,10 @@ const morgan = require('morgan');
 const { urlencoded, json } = require('body-parser');
 const createError = require('http-errors');
 
-const { port } = require('./config');
 const { logErrors } = require('./api/helpers/error');
 const movies = require('./api/routes/movies');
 
-async function startServer() {
+function startServer() {
     const app = express();
     
     app.use(morgan('dev'));
@@ -28,6 +27,8 @@ async function startServer() {
     
     app.use('/movies', movies(express.Router()));
     
+    app.use(logErrors);
+
     app.use((req, res, next) => {
         next(new createError(404, 'Not found'));
     })
@@ -37,21 +38,19 @@ async function startServer() {
         res.json({
             error: {
                 status: error.status || 400,
-                message: error.message
+                message: "Something went wrong!" || error.message
             }
         });
     });
 
-    app.use(logErrors);
-
-    app.listen(port, err => {
+    app.listen(3000, err => {
         if (err) {
             console.error(err);
             process.exit(1);
             return;
         };
-        console.log(`start server on port ${port}`);
+        console.log(`start server on port 3000`);
     });
 };
 
-startServer();
+startServer()

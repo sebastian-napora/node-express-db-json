@@ -1,102 +1,62 @@
-const createError = require('http-errors');
-
-const { movieSchema } = require('../models/movie');
+const { movieSchema } = require('../validation/movie');
+const filterMovie = require('./utils');
 const db = require('../../data/db.json');
-const { jsonWriter, jsonReader, modifiedJsonData } = require('../helpers/json');
-const {
-    convertedArray,
-    randomMovies,
-    responseObject,
-    filtredMoviesDependOnData
-} = require('../helpers/helper');
-
-const database = db.movies;
+const { jsonWriter, jsonReader, modifiedJsonData } = require('../models/transactions.db');
+const { responseObject } = require('../helpers/helper');
 
 module.exports = {
-    getAll: async (req, res, next) =>{
-        try {
-            await res.status(200).json(responseObject('GET ALL MOVIES', database.length, database));
-        } catch (err) {
-            next(new createError(500, err));
-        }
+    getAll: (req, res, next) =>{
+        res.status(200).json(responseObject('GET ALL MOVIES', db.movies.length, db.movies));
     },
-    filtered: async (req, res, next) => {
-            try {
-                const genresByQuery = req.query.genres;
-                const duration = req.query.duration;
+    filtered: (req, res, next) => {
+        const genresByQuery = req.query.genres;
+        const duration = req.query.duration;    
+        
+        const resultFilteredMovies = filterMovie({ genresByQuery, duration }, db);
 
-                const durationBetween = [+duration - 10, +duration, +duration + 10];
-                const filteredMoviesByDuration = database.filter(({ runtime }) => durationBetween.includes(+runtime));
-
-                if (genresByQuery || duration) {
-                    let successResponse;
-                    if(genresByQuery) {
-                        const selectedGenres = genresByQuery.split(',');
-                        let filteredMovies;
-
-                        duration
-                            ? filteredMovies = filtredMoviesDependOnData(filteredMoviesByDuration, selectedGenres)
-                            : filteredMovies = filtredMoviesDependOnData(database, selectedGenres);
-
-                        successResponse = responseObject(
-                            'MOVIES BY DURATION AND CATEGORIES',
-                            convertedArray(filteredMovies, selectedGenres).length,
-                            convertedArray(filteredMovies, selectedGenres)
-                        );
-                    } else {
-                        successResponse = responseObject('GET RANDOM MOVIES BY DURATION',  1, randomMovies(filteredMoviesByDuration));
-                    }
-
-                    return await res.status(200).json(successResponse);
-                } else {
-                    await res.status(200).json(responseObject('GET RANDOM MOVIES', 1, randomMovies(database)));
-                }
-            } catch (err) {
-                next(new createError(500, err));
-            }
+        res.status(200).json(resultFilteredMovies);
     },
-    create: async (req, res, next) => {
-        try {
-            const {
-                id,
-                genres,
-                title,
-                year,
-                runtime,
-                director,
-                actors,
-                plot,
-                posterUrl
-            } = req.body;
-            const { error, value: data } = movieSchema.validate({
-                id,
-                genres,
-                title,
-                year,
-                runtime,
-                director,
-                actors,
-                plot,
-                posterUrl
-            });
-    
-            if(error) {
-                next(error)
-            } else {
-                const jsonString = await modifiedJsonData(data, "Stringify");
-                jsonReader('./data/db.json', (err, data) => {
-                    if(err) return next(createError(404, err))
-    
-                    const arrayOfObjects = data;
-                        arrayOfObjects.movies.push(modifiedJsonData(jsonString, "Parse"));
-    
-                    jsonWriter('./data/db.json', arrayOfObjects);
-                    res.status(201).json(responseObject('Movies created successfully', 1, modifiedJsonData(jsonString, "Parse")));
-                })
-            }
-        } catch (err) {
-            next(err)
+    create: (req, res, next) => {
+        const {
+            id,
+            genres,
+            title,
+            year,
+            runtime,
+            director,
+            actors,
+            plot,
+            posterUrl
+        } = req.body;
+
+        const { error, value: data } = movieSchema.validate({
+            id,
+            genres,
+            title,
+            year,
+            runtime,
+            director,
+            actors,
+            plot,
+            posterUrl
+        });
+
+        if(error) {
+            new Error(error);
+        } else {
+            const jsonString = modifiedJsonData(data, "Stringify");
+            jsonReader('./data/db.json', (err, data) => {
+                if(err) return next(new Error(err))
+
+                const arrayOfObjects = data;
+                    arrayOfObjects.movies.push(modifiedJsonData(jsonString, "Parse"));
+
+                jsonWriter('./data/db.json', arrayOfObjects);
+                res.status(201).json(responseObject('Movies created successfully', 1, modifiedJsonData(jsonString, "Parse")));
+            })
         }
     }
 };
+
+
 
