@@ -32,7 +32,7 @@ module.exports = {
     create: async (req, res, next) => {
         try {
             const {
-                    id,
+                id,
                 genres,
                 title,
                 year,
