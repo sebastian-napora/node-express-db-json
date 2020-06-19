@@ -18,15 +18,11 @@ module.exports = class Movies {
     }
 
     async create(movie) {
-        try {
-            const resolvedPromise = await this.data;
-            const result = modifiedJsonData(resolvedPromise, "Parse")
-                result.movies.push(movie);
-                
-            return writeFile('./data/db.json',  modifiedJsonData(result, "Stringify"));
-        } catch (err) {
-            throw Error(err);
-        }
+        const resolvedPromise = await this.data;
+        const result = modifiedJsonData(resolvedPromise, "Parse")
+            result.movies.push(movie);
+            
+        return writeFile('./data/db.json',  modifiedJsonData(result, "Stringify"));
     }
 }
 

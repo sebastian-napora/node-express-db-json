@@ -26,37 +26,41 @@ module.exports = {
             
             res.status(200).json(resultFilteredMovies);
         } catch (err) {
-            next(new Error(err))
+            next(err.message)
         }
     },
     create: async (req, res, next) => {
-        const {
-            id,
-            genres,
-            title,
-            year,
-            runtime,
-            director,
-            actors,
-            plot,
-            posterUrl
-        } = req.body;
-
-        const data = {
-            id,
-            genres,
-            title,
-            year,
-            runtime,
-            director,
-            actors,
-            plot,
-            posterUrl
-        };
-
-        await new Movies().create(data);
-
-        await res.status(201).json(responseObject('Movies created successfully', 1, data))
+        try {
+            const {
+                    id,
+                genres,
+                title,
+                year,
+                runtime,
+                director,
+                actors,
+                plot,
+                posterUrl
+            } = req.body;
+            
+            const data = {
+                id,
+                genres,
+                title,
+                year,
+                runtime,
+                director,
+                actors,
+                plot,
+                posterUrl
+            };
+            
+            await new Movies().create(data);
+            
+            await res.status(201).json(responseObject('Movies created successfully', 1, data))
+        } catch (err) {
+            next(err.message)
+        }
     }
 };
 
