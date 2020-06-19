@@ -1,22 +1,35 @@
-const { movieSchema } = require('../validation/movie');
 const filterMovie = require('./utils');
-const db = require('../../data/db.json');
-const { jsonWriter, jsonReader, modifiedJsonData } = require('../models/transactions.db');
+const { modifiedJsonData } = require('../models/transactions.db');
 const { responseObject } = require('../helpers/helper');
+const Movies = require('../models/movie');
 
 module.exports = {
-    getAll: (req, res, next) =>{
-        res.status(200).json(responseObject('GET ALL MOVIES', db.movies.length, db.movies));
+    getAll: async (req, res, next) => {
+        try {
+            const resolvedPromise = await new Movies().getAll();
+            const result = modifiedJsonData(resolvedPromise, "Parse")
+           
+            res.status(200).json(responseObject('GET ALL MOVIES', result.movies.length, result.movies));
+        } catch (err) {
+            res.status(400).json({ message: 'Something went wrong' });
+        }
     },
-    filtered: (req, res, next) => {
-        const genresByQuery = req.query.genres;
-        const duration = req.query.duration;    
-        
-        const resultFilteredMovies = filterMovie({ genresByQuery, duration }, db);
-
-        res.status(200).json(resultFilteredMovies);
+    filtered: async (req, res, next) => {
+        try {
+            const genresByQuery = req.query.genres;
+            const duration = req.query.duration;  
+            
+            const resolvedPromise = await new Movies().getAll();
+            const result = modifiedJsonData(resolvedPromise, "Parse");
+            
+            const resultFilteredMovies = filterMovie({ genresByQuery, duration }, result);
+            
+            res.status(200).json(resultFilteredMovies);
+        } catch (err) {
+            next(new Error(err))
+        }
     },
-    create: (req, res, next) => {
+    create: async (req, res, next) => {
         const {
             id,
             genres,
@@ -29,7 +42,7 @@ module.exports = {
             posterUrl
         } = req.body;
 
-        const { error, value: data } = movieSchema.validate({
+        const data = {
             id,
             genres,
             title,
@@ -39,22 +52,11 @@ module.exports = {
             actors,
             plot,
             posterUrl
-        });
+        };
 
-        if(error) {
-            new Error(error);
-        } else {
-            const jsonString = modifiedJsonData(data, "Stringify");
-            jsonReader('./data/db.json', (err, data) => {
-                if(err) return next(new Error(err))
+        await new Movies().create(data);
 
-                const arrayOfObjects = data;
-                    arrayOfObjects.movies.push(modifiedJsonData(jsonString, "Parse"));
-
-                jsonWriter('./data/db.json', arrayOfObjects);
-                res.status(201).json(responseObject('Movies created successfully', 1, modifiedJsonData(jsonString, "Parse")));
-            })
-        }
+        await res.status(201).json(responseObject('Movies created successfully', 1, data))
     }
 };
 

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { promisify } = require('util');
 
 const modifiedJsonData = (value, jsonName) => {
     return jsonName === "Parse" ? JSON.parse(value) : JSON.stringify(value, null, 2)
@@ -23,8 +24,13 @@ const jsonWriter = (filePath, updateDb) => {
     })
 };
 
+const readFile = promisify(fs.readFile);
+const writeFile = promisify(fs.writeFile);
+
 module.exports = {
     jsonWriter,
     jsonReader,
+    readFile,
+    writeFile,
     modifiedJsonData
 }
