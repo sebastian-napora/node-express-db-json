@@ -1,6 +1,5 @@
 const express = require('express');
 const morgan = require('morgan');
-const { urlencoded, json } = require('body-parser');
 const cors = require('cors');
 
 const { logErrors } = require('./helpers/error');
@@ -11,12 +10,12 @@ function startServer() {
     
     app.use(morgan('dev'));
     
-    app.use(urlencoded({ extended: false }));
-    app.use(json());      
+    app.use(express.urlencoded({ extended: false }));
+    app.use(express.json());      
     
     app.use(cors());
   
-    app.use('/movies', movies(express.Router()));
+    app.use('/movies', movies());
     
     app.use(logErrors);
 
@@ -37,4 +36,4 @@ function startServer() {
     });
 };
 
-startServer()
+startServer();
