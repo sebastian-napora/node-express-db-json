@@ -1,7 +1,7 @@
 const filterMovie = require('./utils');
 const { modifiedJsonData } = require('../models/utils');
 const { responseObject } = require('../helpers/helper');
-const Movies = require('../models/movie');
+const Movies = require('../models/movies');
 
 module.exports = {
     getAll: async (req, res, next) => {
