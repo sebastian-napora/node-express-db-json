@@ -25,6 +25,16 @@ function startServer() {
         error.message = 'Not found'
         next(error)
     })
+
+    app.use((error, req, res, next) => {	
+        res.status(error.status || 400);	
+        res.json({	
+            error: {	
+                status: error.status || 400,	
+                message: "Something went wrong!" || error.message	
+            }	
+        });	
+    });
     
     app.listen(3000, err => {
         if (err) {

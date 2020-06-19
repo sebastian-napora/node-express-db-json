@@ -7,11 +7,11 @@ module.exports = {
     getAll: async (req, res, next) => {
         try {
             const resolvedPromise = await new Movies().getAll();
-            const result = modifiedJsonData(resolvedPromise, "Parse")
+            const result = modifiedJsonData(resolvedPromise, "Parse");
            
             res.status(200).json(responseObject('GET ALL MOVIES', result.movies.length, result.movies));
         } catch (err) {
-            next(err.message);
+            next(new Error(err));
         }
     },
     filtered: async (req, res, next) => {
@@ -26,7 +26,7 @@ module.exports = {
             
             res.status(200).json(resultFilteredMovies);
         } catch (err) {
-            next(err.message)
+            next(new Error(err));
         }
     },
     create: async (req, res, next) => {
@@ -57,9 +57,9 @@ module.exports = {
             
             await new Movies().create(data);
             
-            await res.status(201).json(responseObject('Movies created successfully', 1, data))
+            await res.status(201).json(responseObject('Movies created successfully', 1, data));
         } catch (err) {
-            next(err.message)
+            next(new Error(err));
         }
     }
 };
