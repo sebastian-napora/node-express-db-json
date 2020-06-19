@@ -27,26 +27,6 @@ function startServer() {
         next(error)
     })
     
-    app.use((error, req, res, next) => {
-        res.status(400 || error.status);
-        res.json({
-            error: {
-                status: 400 || error.status,
-                message: "Something went wrong!" || error.message
-            }
-        });
-    });
-
-    app.use((error, req, res, next) => {
-        res.status(500);
-        res.json({
-            error: {
-                status: 500,
-                message: "Something went wrong!"
-            }
-        });
-    });
-
     app.listen(3000, err => {
         if (err) {
             console.error(err);
