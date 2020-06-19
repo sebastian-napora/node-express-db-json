@@ -11,7 +11,7 @@ module.exports = {
            
             res.status(200).json(responseObject('GET ALL MOVIES', result.movies.length, result.movies));
         } catch (err) {
-            next(new Error(err));
+            res.status(400).send('Something went wrong');
         }
     },
     filtered: async (req, res, next) => {
@@ -57,7 +57,7 @@ module.exports = {
             
             await new Movies().create(data);
             
-            await res.status(201).json(responseObject('Movies created successfully', 1, data));
+            res.status(201).json(responseObject('Movies created successfully', 1, data));
         } catch (err) {
             next(new Error(err));
         }

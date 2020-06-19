@@ -14,7 +14,7 @@ module.exports = class Movies {
     }
 
     async readDbData() {
-        return await readFile('./data/db.json', { encoding: 'utf8' });
+        return await readFile('./data/dbs.json', { encoding: 'utf8' });
     }
 
     async create(movie) {
