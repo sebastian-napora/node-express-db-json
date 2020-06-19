@@ -2,7 +2,7 @@ const {
     modifiedJsonData,
     readFile,
     writeFile
-} = require('./transactions.db');
+} = require('./utils');
 
 module.exports = class Movies {
     constructor() {

@@ -1,5 +1,5 @@
 const filterMovie = require('./utils');
-const { modifiedJsonData } = require('../models/transactions.db');
+const { modifiedJsonData } = require('../models/utils');
 const { responseObject } = require('../helpers/helper');
 const Movies = require('../models/movie');
 
