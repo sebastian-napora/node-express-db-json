@@ -2,6 +2,7 @@ const Movies = require('../models/movies')
 const filterMovie = require('./utils')
 const { modifiedJsonData } = require('../models/utils')
 const { responseObject } = require('../helpers/helper')
+const { DB_PATH } = require('../constants')
 
 module.exports = {
   getAll: async (req, res) => {
@@ -65,7 +66,7 @@ module.exports = {
       }
 
       // create new movie
-      await new Movies().create(data)
+      await new Movies().create(data, DB_PATH)
 
       // return new list of movies
       res
