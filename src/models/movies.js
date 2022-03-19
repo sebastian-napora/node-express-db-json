@@ -32,7 +32,7 @@ module.exports = class Movies {
    * @async
    * @description This method created a new movie. Added to db.json.
    */
-  async create(movie) {
+  async create(movie, path) {
     // get all available movies to promise
     const promiseDbData = await this.data
     // take a result of promiseDbData
@@ -40,6 +40,6 @@ module.exports = class Movies {
     // here we pushed a new movie
     result.movies.push(movie)
     // updated db.json file
-    return writeFile(DB_PATH, modifiedJsonData(result, 'Stringify'))
+    return writeFile(path, modifiedJsonData(result, 'Stringify'))
   }
 }
