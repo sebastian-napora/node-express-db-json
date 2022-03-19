@@ -5,8 +5,16 @@
   "main": "app.js",
   "scripts": {
     "test": "jest",
+    "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "start": "nodemon ./src/app.js"
+    "start": "nodemon ./src/app.js",
+    "eslint": "eslint",
+    "prettier": "prettier --check .",
+    "prettier:watch": "onchange \"**/*.+(js|jsx|ts|tsx|json|css|md)\" -- prettier --write {{changed}}",
+    "format:write": "prettier --write .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "lint:watch": "onchange \"**/*.+(js|jsx|ts|tsx|json|css|md)\" -- yarn lint:fix"
   },
   "keywords": [
     "test",
@@ -20,12 +28,18 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-joi-validation": "^4.0.3",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
+    "eslint": "^8.11.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.25.4",
     "jest": "^26.0.1",
-    "morgan": "^1.10.0"
+    "onchange": "^7.1.0",
+    "prettier": "^2.6.0"
   },
   "jest": {
     "testEnvironment": "node",
